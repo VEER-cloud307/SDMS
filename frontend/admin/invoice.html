@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tax Invoice | Saptashrungi Disposables Surat</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/css/admin.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="admin-body" style="background: #f1f5f9; padding: 30px 10px;">
+
+    <!-- Top Action Toolbar (Hidden in Print) -->
+    <div class="no-print" style="max-width: 800px; margin: 0 auto 20px; display: flex; justify-content: space-between; align-items: center;">
+        <button onclick="window.history.back()" class="btn btn-outline btn-sm">
+            <i class="fa-solid fa-arrow-left"></i> Back
+        </button>
+        <div style="display: flex; gap: 10px;">
+            <button onclick="window.print()" class="btn btn-primary">
+                <i class="fa-solid fa-print"></i> Print Tax Invoice
+            </button>
+        </div>
+    </div>
+
+    <!-- Printable Invoice Container -->
+    <div class="invoice-wrap" id="invoiceContainer">
+        <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+            <i class="fa-solid fa-spinner fa-spin" style="font-size: 2rem;"></i>
+            <p style="margin-top: 10px;">Generating printable invoice...</p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/js/api.js"></script>
+    <script>
+        async function loadInvoice() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const billId = urlParams.get('id');
+
+            if (!billId) {
+                document.getElementById('invoiceContainer').innerHTML = `
+                    <div style="text-align: center; color: var(--danger); padding: 30px;">
+                        No invoice ID specified. Please return to billing records.
+                    </div>
+                `;
+                return;
+            }
+
+            try {
+                const res = await API.get(`/bills/${billId}`);
+                if (!res.bill) {
+                    throw new Error('Invoice record could not be found.');
+                }
+
+                const b = res.bill;
+                const biz = b.business || {};
+                const items = b.items || [];
+
+                // Calculate totals
+                const subtotal = items.reduce((sum, it) => sum + (it.price * it.quantity), 0);
+                const grandTotal = b.total_amount || subtotal;
+
+                // Estimated GST split (18% inclusive)
+                const taxableValue = (grandTotal / 1.18);
+                const gstAmount = grandTotal - taxableValue;
+                const cgst = gstAmount / 2;
+                const sgst = gstAmount / 2;
+
+                const itemsRows = items.map((it, idx) => `
+                    <tr>
+                        <td style="text-align: center;">${idx + 1}</td>
+                        <td>
+                            <strong>${it.product_name}</strong>
+                            <div style="font-size: 0.76rem; color: #64748b;">${it.specifications || ''}</div>
+                        </td>
+                        <td style="text-align: right;">${formatCurrency(it.price)}</td>
+                        <td style="text-align: center;"><strong>${it.quantity}</strong></td>
+                        <td style="text-align: right;"><strong>${formatCurrency(it.subtotal)}</strong></td>
+                    </tr>
+                `).join('');
+
+                document.getElementById('invoiceContainer').innerHTML = `
+                    <!-- Invoice Header -->
+                    <div class="invoice-header">
+                        <div class="invoice-shop-title">
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                                <div style="width: 32px; height: 32px; background: #0f766e; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white;">
+                                    <i class="fa-solid fa-leaf"></i>
+                                </div>
+                                <h2 style="font-size: 1.5rem; margin: 0;">${biz.shop_name || 'Saptashrungi Disposables'}</h2>
+                            </div>
+                            <p style="font-size: 0.8rem; color: #475569; max-width: 400px; line-height: 1.4;">
+                                ${biz.address || '3/1477, Daxini maholla, Ambawadi, Salabatpura, Reshamwad, Surat - 395002'}<br>
+                                <strong>Proprietor:</strong> ${biz.owner_name || 'Mr. Chetan Jadav'} | <strong>Phone:</strong> ${biz.phone || '+91 9082545483'}<br>
+                                <strong>Email:</strong> ${biz.email || 'saptashrungidisposables@gmail.com'}
+                            </p>
+                        </div>
+                        <div class="invoice-meta">
+                            <div style="font-size: 1.4rem; font-weight: 800; color: #0f766e; text-transform: uppercase;">TAX INVOICE</div>
+                            <div><strong>Invoice #:</strong> ${b.bill_number}</div>
+                            <div><strong>Date:</strong> ${b.bill_date}</div>
+                            <div><strong>Order Ref:</strong> ${b.order_number}</div>
+                            <div style="margin-top: 6px;">
+                                <span class="status-pill status-${(b.payment_status || 'Paid').toLowerCase()}" style="font-size: 0.78rem;">
+                                    Payment: ${b.payment_status} (${b.payment_method})
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Customer Bill To Info -->
+                    <div class="invoice-parties">
+                        <div>
+                            <div style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #64748b; margin-bottom: 4px;">Billed To (Customer):</div>
+                            <h3 style="font-size: 1.1rem; margin-bottom: 4px;">${b.customer_name}</h3>
+                            <div style="font-size: 0.85rem; color: #475569;">
+                                <strong>Phone:</strong> ${b.customer_phone || 'N/A'}<br>
+                                <strong>Delivery Address:</strong><br>${b.customer_address || 'Surat, Gujarat'}
+                            </div>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #64748b; margin-bottom: 4px;">Dispatch &amp; Supply Details:</div>
+                            <div style="font-size: 0.85rem; color: #475569; line-height: 1.6;">
+                                <strong>Place of Supply:</strong> Surat (24 - Gujarat)<br>
+                                <strong>Transport Mode:</strong> Local Wholesale Delivery<br>
+                                <strong>Payment Terms:</strong> ${b.payment_method} - ${b.payment_status}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Invoice Line Items Table -->
+                    <table class="invoice-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 40px; text-align: center;">#</th>
+                                <th>Item Description &amp; Specifications</th>
+                                <th style="width: 100px; text-align: right;">Rate (₹)</th>
+                                <th style="width: 70px; text-align: center;">Qty</th>
+                                <th style="width: 120px; text-align: right;">Amount (₹)</th>
+                            </tr>
+                        </thead>
+                        <tbody>${itemsRows}</tbody>
+                    </table>
+
+                    <!-- Totals Breakdown -->
+                    <div class="invoice-totals">
+                        <table class="totals-table">
+                            <tr>
+                                <td>Taxable Value:</td>
+                                <td style="text-align: right;">${formatCurrency(taxableValue)}</td>
+                            </tr>
+                            <tr>
+                                <td>CGST (9%):</td>
+                                <td style="text-align: right;">${formatCurrency(cgst)}</td>
+                            </tr>
+                            <tr>
+                                <td>SGST (9%):</td>
+                                <td style="text-align: right;">${formatCurrency(sgst)}</td>
+                            </tr>
+                            <tr class="grand-total">
+                                <td>Grand Total:</td>
+                                <td style="text-align: right;">${formatCurrency(grandTotal)}</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <!-- Footer Signatory & Terms -->
+                    <div style="border-top: 1px solid #cbd5e1; padding-top: 16px; display: flex; justify-content: space-between; align-items: flex-end; font-size: 0.8rem; color: #64748b;">
+                        <div>
+                            <strong>Terms &amp; Conditions:</strong><br>
+                            1. Goods once sold will not be taken back unless damaged upon delivery.<br>
+                            2. Subject to Surat jurisdiction.<br>
+                            3. Thank you for choosing Saptashrungi Disposables!
+                        </div>
+                        <div style="text-align: center; width: 220px;">
+                            <div style="margin-bottom: 40px; font-weight: 700; color: #0f172a;">For SAPTASHRUNGI DISPOSABLES</div>
+                            <div style="border-top: 1px dashed #64748b; padding-top: 4px;">Authorized Signatory</div>
+                        </div>
+                    </div>
+                `;
+            } catch (err) {
+                document.getElementById('invoiceContainer').innerHTML = `
+                    <div style="text-align: center; color: var(--danger); padding: 30px;">
+                        Error loading invoice: ${err.message}
+                    </div>
+                `;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadInvoice);
+    </script>
+</body>
+</html>

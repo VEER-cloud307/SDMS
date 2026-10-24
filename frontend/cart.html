@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="View your cart and place your wholesale order online or directly via WhatsApp with Saptashrungi Disposables Surat.">
+    <title>Shopping Cart &amp; Checkout | Saptashrungi Disposables</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header class="site-header">
+        <div class="container navbar">
+            <a href="/" class="brand-logo">
+                <div class="brand-icon"><i class="fa-solid fa-leaf"></i></div>
+                <div class="brand-text">
+                    <h1>Saptashrungi</h1>
+                    <span>Disposables Checkout</span>
+                </div>
+            </a>
+
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="/" class="nav-link">Home</a></li>
+                    <li><a href="/products.html" class="nav-link">Product Catalog</a></li>
+                    <li><a href="/cart.html" class="nav-link active">Shopping Cart</a></li>
+                    <li><a href="/my-orders.html" class="nav-link">My Orders</a></li>
+                </ul>
+            </nav>
+
+            <div class="nav-actions">
+                <a href="/cart.html" class="cart-btn" id="nav-cart-btn">
+                    <i class="fa-solid fa-basket-shopping" style="color: var(--primary);"></i>
+                    <span>Cart</span>
+                    <span class="cart-count" id="nav-cart-count">0</span>
+                </a>
+                <div id="nav-auth-container" style="display: flex; gap: 8px;"></div>
+            </div>
+        </div>
+    </header>
+
+    <div style="background: white; border-bottom: 1px solid var(--border); padding: 24px 0;">
+        <div class="container" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: gap: 12px;">
+            <div>
+                <h1 style="font-size: 1.8rem; margin-bottom: 4px;">Shopping Cart &amp; Checkout</h1>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Review your wholesale item quantities and place your order.</p>
+            </div>
+            <button onclick="clearFullCart()" class="btn btn-outline btn-sm" style="color: #ef4444; border-color: #fecaca;" id="clear-cart-btn">
+                <i class="fa-solid fa-trash"></i> Clear Entire Cart
+            </button>
+        </div>
+    </div>
+
+    <section class="products-section">
+        <div class="container">
+            <!-- Empty Cart Alert -->
+            <div id="emptyCartView" style="display: none; text-align: center; padding: 70px 20px; background: white; border-radius: var(--radius-xl); border: 1px dashed var(--border); box-shadow: var(--shadow-sm);">
+                <i class="fa-solid fa-cart-shopping" style="font-size: 4rem; color: #cbd5e1; margin-bottom: 18px;"></i>
+                <h2 style="font-size: 1.5rem; margin-bottom: 8px;">Your Cart is Currently Empty</h2>
+                <p style="color: var(--text-muted); font-size: 1rem; max-width: 480px; margin: 0 auto 24px;">
+                    Looks like you haven't added any disposable products to your cart yet. Explore our 20-product catalog of cups, plates, and meal boxes!
+                </p>
+                <a href="/products.html" class="btn btn-primary btn-lg">
+                    <i class="fa-solid fa-boxes-stacked"></i> Browse Catalog Now
+                </a>
+            </div>
+
+            <!-- Active Cart Grid -->
+            <div id="cartView" style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 30px; align-items: start;">
+                <!-- Cart Items List -->
+                <div style="background: white; border-radius: var(--radius-lg); border: 1px solid var(--border); overflow: hidden; box-shadow: var(--shadow-sm);">
+                    <div style="padding: 16px 20px; border-bottom: 1px solid var(--border); background: #f8fafc; font-weight: 700; color: #475569; font-size: 0.9rem; display: flex; justify-content: space-between;">
+                        <span>Item Details</span>
+                        <span>Quantity &amp; Subtotal</span>
+                    </div>
+                    <div id="cartItemsList" style="padding: 10px 20px;">
+                        <!-- Injected dynamically -->
+                    </div>
+                </div>
+
+                <!-- Checkout Sidebar -->
+                <div style="display: flex; flex-direction: column; gap: 20px;">
+                    <!-- Order Summary Card -->
+                    <div style="background: white; border-radius: var(--radius-lg); border: 1px solid var(--border); padding: 24px; box-shadow: var(--shadow-sm);">
+                        <h3 style="font-size: 1.2rem; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
+                            Order Summary
+                        </h3>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.92rem; color: var(--text-muted);">
+                            <span>Total Items:</span>
+                            <strong id="summaryTotalItems" style="color: var(--text-main);">0</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.92rem; color: var(--text-muted);">
+                            <span>Subtotal:</span>
+                            <span id="summarySubtotal" style="font-weight: 600; color: var(--text-main);">₹0.00</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.92rem; color: var(--text-muted);">
+                            <span>GST &amp; Taxes:</span>
+                            <span style="color: var(--success); font-weight: 600;">Included in Rate</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 16px; font-size: 0.92rem; color: var(--text-muted);">
+                            <span>Surat Local Delivery:</span>
+                            <span style="color: var(--primary); font-weight: 600;">Calculated on Confirmation</span>
+                        </div>
+                        <div style="border-top: 2px dashed var(--border); padding-top: 14px; display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 20px;">
+                            <span style="font-size: 1.1rem; font-weight: 700;">Grand Total:</span>
+                            <span id="summaryGrandTotal" style="font-size: 1.6rem; font-weight: 800; color: var(--primary); font-family: var(--font-heading);">₹0.00</span>
+                        </div>
+
+                        <!-- Customer Details Form -->
+                        <h4 style="font-size: 1rem; margin-bottom: 12px; color: #334155;">Customer &amp; Shipping Details</h4>
+                        <form id="checkoutForm" onsubmit="handlePlaceOrder(event)">
+                            <div class="form-group">
+                                <label class="form-label">Contact Person / Business Name *</label>
+                                <input type="text" id="cust_name" class="form-control" required placeholder="Mr. Chetan / Rohit Patel">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Phone / WhatsApp Number *</label>
+                                <input type="tel" id="cust_phone" class="form-control" required placeholder="+91 9825123456">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Email Address</label>
+                                <input type="email" id="cust_email" class="form-control" placeholder="customer@sdms.com">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Surat Delivery Address *</label>
+                                <textarea id="cust_address" class="form-control" rows="2" required placeholder="Shop/Flat No, Landmark, Salabatpura / Adajan / Ring Road, Surat"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Order Notes / Delivery Timing</label>
+                                <input type="text" id="cust_notes" class="form-control" placeholder="e.g. Urgent morning dispatch required">
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-bottom: 12px;" id="place-order-btn">
+                                <i class="fa-solid fa-circle-check"></i> Place Order Online (SDMS)
+                            </button>
+
+                            <button type="button" onclick="checkoutViaWhatsApp()" class="btn btn-whatsapp btn-lg" style="width: 100%;" id="whatsapp-order-btn">
+                                <i class="fa-brands fa-whatsapp"></i> Order on WhatsApp Directly
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Order Placed Success Modal -->
+    <div class="modal-overlay" id="orderSuccessModal">
+        <div class="modal-card" style="text-align: center;">
+            <div style="width: 72px; height: 72px; background: #ecfdf5; color: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; margin: 0 auto 16px;">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <h2 style="font-size: 1.6rem; margin-bottom: 8px;">Order Placed Successfully!</h2>
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px;">
+                Your wholesale order has been registered in the system. Our team will verify and confirm stock shortly.
+            </p>
+            <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px; margin-bottom: 24px; text-align: left;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="color: var(--text-muted);">Order Number:</span>
+                    <strong id="successOrderNum" style="color: var(--primary);">ORD-2026-XXXX</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="color: var(--text-muted);">Total Amount:</span>
+                    <strong id="successTotalAmount">₹0.00</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--text-muted);">Status:</span>
+                    <span class="status-pill status-pending">Pending Confirmation</span>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 12px; justify-content: center;">
+                <a href="/my-orders.html" class="btn btn-primary">
+                    <i class="fa-solid fa-clock-rotate-left"></i> Track in My Orders
+                </a>
+                <a href="/products.html" class="btn btn-outline">
+                    Continue Shopping
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container footer-bottom">
+            <div>&copy; 2026 Saptashrungi Disposables. All Rights Reserved.</div>
+            <div>Need immediate assistance? Call +91 9082545483</div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="/js/api.js"></script>
+    <script src="/js/app.js"></script>
+    <script>
+        function renderCartPage() {
+            const cart = Cart.get();
+            const emptyView = document.getElementById('emptyCartView');
+            const cartView = document.getElementById('cartView');
+            const itemsList = document.getElementById('cartItemsList');
+
+            if (cart.length === 0) {
+                if (emptyView) emptyView.style.display = 'block';
+                if (cartView) cartView.style.display = 'none';
+                return;
+            }
+
+            if (emptyView) emptyView.style.display = 'none';
+            if (cartView) cartView.style.display = 'grid';
+
+            itemsList.innerHTML = cart.map(it => {
+                const lineTotal = (it.price * it.quantity).toFixed(2);
+                return `
+                    <div style="display: grid; grid-template-columns: 60px 1fr auto; gap: 16px; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--border);">
+                        <img src="${it.image_url || '/images/products/ripple-cups.svg'}" alt="${it.name}" style="width: 54px; height: 54px; object-fit: contain; background: #f8fafc; border-radius: 8px; padding: 4px; border: 1px solid var(--border);">
+                        <div>
+                            <h4 style="font-size: 0.95rem; margin-bottom: 4px;">${it.name}</h4>
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">
+                                Rate: ${formatCurrency(it.price)} per pack | Stock: ${it.current_stock}
+                            </div>
+                            <div style="font-size: 0.72rem; color: var(--text-light);">
+                                Order limit: ${it.max_order_quantity} packs
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 16px;">
+                            <div class="qty-input-wrap">
+                                <button class="qty-btn" onclick="updateQty(${it.id}, ${it.quantity - 1})">-</button>
+                                <input type="number" class="qty-field" value="${it.quantity}" onchange="updateQty(${it.id}, this.value)">
+                                <button class="qty-btn" onclick="updateQty(${it.id}, ${it.quantity + 1})">+</button>
+                            </div>
+                            <div style="min-width: 80px; text-align: right; font-weight: 700; color: var(--primary);">
+                                ${formatCurrency(lineTotal)}
+                            </div>
+                            <button onclick="removeCartItem(${it.id})" class="btn btn-sm btn-outline" style="color: #ef4444; border-color: #fee2e2; padding: 6px 10px;" title="Remove Item">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Update Summary
+            const totalItems = Cart.count();
+            const grandTotal = Cart.total();
+            document.getElementById('summaryTotalItems').textContent = totalItems;
+            document.getElementById('summarySubtotal').textContent = formatCurrency(grandTotal);
+            document.getElementById('summaryGrandTotal').textContent = formatCurrency(grandTotal);
+        }
+
+        function updateQty(productId, newQty) {
+            Cart.update(productId, newQty);
+            renderCartPage();
+        }
+
+        function removeCartItem(productId) {
+            Cart.remove(productId);
+            renderCartPage();
+        }
+
+        function clearFullCart() {
+            if (confirm('Are you sure you want to clear all items from your cart?')) {
+                Cart.clear();
+                renderCartPage();
+            }
+        }
+
+        function prefillCustomerData() {
+            const user = API.getUser();
+            if (user) {
+                if (user.name) document.getElementById('cust_name').value = user.name;
+                if (user.phone) document.getElementById('cust_phone').value = user.phone;
+                if (user.email) document.getElementById('cust_email').value = user.email;
+                if (user.address) document.getElementById('cust_address').value = user.address;
+            }
+        }
+
+        async function handlePlaceOrder(e) {
+            e.preventDefault();
+            const cart = Cart.get();
+            if (cart.length === 0) {
+                showToast('Cart is empty!', 'warning');
+                return;
+            }
+
+            const name = document.getElementById('cust_name').value.trim();
+            const phone = document.getElementById('cust_phone').value.trim();
+            const email = document.getElementById('cust_email').value.trim();
+            const address = document.getElementById('cust_address').value.trim();
+            const notes = document.getElementById('cust_notes').value.trim();
+
+            const itemsPayload = cart.map(it => ({
+                product_id: it.id,
+                quantity: it.quantity
+            }));
+
+            const btn = document.getElementById('place-order-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing Order...';
+
+            try {
+                const res = await API.post('/orders', {
+                    customer_name: name,
+                    customer_phone: phone,
+                    customer_email: email,
+                    shipping_address: address,
+                    items: itemsPayload,
+                    notes: notes
+                });
+
+                if (res.success && res.order) {
+                    Cart.clear();
+                    document.getElementById('successOrderNum').textContent = res.order.order_number;
+                    document.getElementById('successTotalAmount').textContent = formatCurrency(res.order.total_amount);
+                    document.getElementById('orderSuccessModal').classList.add('active');
+                }
+            } catch (err) {
+                showToast(err.message, 'danger');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-circle-check"></i> Place Order Online (SDMS)';
+            }
+        }
+
+        function checkoutViaWhatsApp() {
+            const name = document.getElementById('cust_name').value.trim();
+            const phone = document.getElementById('cust_phone').value.trim();
+            const address = document.getElementById('cust_address').value.trim();
+
+            if (!name || !phone || !address) {
+                showToast('Please fill in your Name, Phone, and Address before sending to WhatsApp.', 'warning');
+                return;
+            }
+
+            triggerWhatsAppOrder({ name, phone, address });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCartPage();
+            prefillCustomerData();
+        });
+    </script>
+</body>
+</html>

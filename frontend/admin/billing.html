@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Billing &amp; Invoices | SDMS Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/css/admin.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="admin-body">
+
+    <!-- Sidebar Navigation -->
+    <aside class="admin-sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-brand-icon"><i class="fa-solid fa-leaf"></i></div>
+            <div class="sidebar-brand-text">
+                <h2>Saptashrungi</h2>
+                <span>Admin Console</span>
+            </div>
+        </div>
+
+        <ul class="sidebar-nav">
+            <li class="nav-section-title">Core Management</li>
+            <li><a href="/admin/index.html" class="sidebar-link" data-menu="dashboard"><i class="fa-solid fa-gauge"></i><span>Dashboard</span></a></li>
+            <li><a href="/admin/products.html" class="sidebar-link" data-menu="products"><i class="fa-solid fa-boxes-stacked"></i><span>Products</span></a></li>
+            <li><a href="/admin/stock.html" class="sidebar-link" data-menu="stock"><i class="fa-solid fa-warehouse"></i><span>Stock Management</span><span id="sidebar-low-stock-badge" class="sidebar-badge" style="display: none;">0</span></a></li>
+            <li><a href="/admin/orders.html" class="sidebar-link" data-menu="orders"><i class="fa-solid fa-cart-flatbed"></i><span>Orders</span></a></li>
+
+            <li class="nav-section-title" style="margin-top: 14px;">Finance &amp; Operations</li>
+            <li><a href="/admin/suppliers.html" class="sidebar-link" data-menu="suppliers"><i class="fa-solid fa-truck-field"></i><span>Suppliers</span></a></li>
+            <li><a href="/admin/billing.html" class="sidebar-link active" data-menu="billing"><i class="fa-solid fa-file-invoice-dollar"></i><span>Billing &amp; Invoices</span></a></li>
+            <li><a href="/admin/reports.html" class="sidebar-link" data-menu="reports"><i class="fa-solid fa-chart-pie"></i><span>Reports &amp; Analytics</span></a></li>
+            <li><a href="/admin/settings.html" class="sidebar-link" data-menu="settings"><i class="fa-solid fa-store"></i><span>Business Info</span></a></li>
+
+            <li class="nav-section-title" style="margin-top: 14px;">Storefront</li>
+            <li><a href="/" target="_blank" class="sidebar-link"><i class="fa-solid fa-arrow-up-right-from-square"></i><span>Customer Store</span></a></li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <div class="admin-user-info">
+                <div class="admin-avatar" id="admin-profile-avatar">A</div>
+                <div class="admin-details">
+                    <h4 id="admin-profile-name">Chetan Jadav</h4>
+                    <span>Administrator</span>
+                </div>
+            </div>
+            <button onclick="adminLogout()" class="logout-btn" title="Sign Out"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="admin-main">
+        <header class="admin-topbar">
+            <div class="topbar-title">
+                <h1>Billing &amp; Invoice Records</h1>
+            </div>
+            <div class="topbar-actions">
+                <a href="/admin/orders.html" class="btn btn-primary btn-sm">
+                    <i class="fa-solid fa-cart-flatbed"></i> View Orders to Bill
+                </a>
+            </div>
+        </header>
+
+        <div class="admin-content">
+            <!-- Filter Bar -->
+            <div class="admin-card">
+                <div class="admin-card-body" style="padding: 16px 20px; display: flex; gap: 16px; flex-wrap: wrap; align-items: center;">
+                    <div class="search-box" style="flex: 1; min-width: 260px;">
+                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                        <input type="text" id="billSearch" placeholder="Search bill #, customer name, order #..." oninput="handleBillSearch()">
+                    </div>
+
+                    <select id="billPaymentFilter" class="filter-select" onchange="loadBills()">
+                        <option value="all">All Payment Status</option>
+                        <option value="Paid">Paid</option>
+                        <option value="Pending">Pending</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Bills Table -->
+            <div class="admin-card">
+                <div class="admin-card-header">
+                    <h2 id="billsCountHeader">Generated Tax Invoices</h2>
+                </div>
+                <div class="table-responsive">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Bill #</th>
+                                <th>Order #</th>
+                                <th>Date</th>
+                                <th>Customer</th>
+                                <th>Total (Server Calc)</th>
+                                <th>Payment Method</th>
+                                <th>Payment Status</th>
+                                <th style="text-align: right;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bills-tbody">
+                            <tr>
+                                <td colspan="8" style="text-align: center; padding: 30px;">
+                                    <i class="fa-solid fa-spinner fa-spin"></i> Loading invoice records...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="/js/api.js"></script>
+    <script src="/js/admin.js"></script>
+    <script>
+        let allBills = [];
+
+        async function initBillingPage() {
+            initAdminPage('billing');
+            await loadBills();
+        }
+
+        async function loadBills() {
+            const search = document.getElementById('billSearch').value.trim();
+            const payment_status = document.getElementById('billPaymentFilter').value;
+
+            const params = {};
+            if (search) params.search = search;
+            if (payment_status !== 'all') params.payment_status = payment_status;
+
+            try {
+                const res = await API.get('/bills', params);
+                allBills = res.bills || [];
+                renderBillsTable(allBills);
+            } catch (err) {
+                showToast(err.message, 'danger');
+            }
+        }
+
+        function renderBillsTable(bills) {
+            const tbody = document.getElementById('bills-tbody');
+            document.getElementById('billsCountHeader').textContent = `Generated Invoices (${bills.length})`;
+
+            if (bills.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 24px; color: var(--text-muted);">No invoices found.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = bills.map(b => {
+                const isPaid = b.payment_status === 'Paid';
+                return `
+                    <tr id="bill-row-${b.id}">
+                        <td><strong style="color: var(--admin-primary);">${b.bill_number}</strong></td>
+                        <td>${b.order_number}</td>
+                        <td>${b.bill_date}</td>
+                        <td>
+                            <div style="font-weight: 600;">${b.customer_name}</div>
+                            <div style="font-size: 0.75rem; color: #64748b;">${b.customer_phone || ''}</div>
+                        </td>
+                        <td><strong style="font-size: 1.05rem; color: var(--text-main); font-family: var(--font-heading);">${formatCurrency(b.total_amount)}</strong></td>
+                        <td>${b.payment_method || 'Cash'}</td>
+                        <td>
+                            <select onchange="updatePaymentStatus(${b.id}, this.value)" class="form-control" style="padding: 4px 8px; font-size: 0.78rem; width: 110px;">
+                                <option value="Paid" ${isPaid ? 'selected' : ''}>Paid</option>
+                                <option value="Pending" ${!isPaid ? 'selected' : ''}>Pending</option>
+                            </select>
+                        </td>
+                        <td style="text-align: right;">
+                            <a href="/admin/invoice.html?id=${b.id}" target="_blank" class="btn btn-sm btn-primary" title="View &amp; Print Official Tax Invoice">
+                                <i class="fa-solid fa-print"></i> Print Invoice
+                            </a>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        let billSearchTimer = null;
+        function handleBillSearch() {
+            clearTimeout(billSearchTimer);
+            billSearchTimer = setTimeout(loadBills, 200);
+        }
+
+        async function updatePaymentStatus(billId, status) {
+            try {
+                await API.patch(`/bills/${billId}/payment`, { payment_status: status });
+                showToast(`Payment status updated to ${status}.`, 'success');
+            } catch (err) {
+                showToast(err.message, 'danger');
+                loadBills();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', initBillingPage);
+    </script>
+</body>
+</html>

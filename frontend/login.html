@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sign in or register for Saptashrungi Disposables Management System (SDMS) Surat.">
+    <title>Sign In &amp; Register | Saptashrungi Disposables</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body style="background: radial-gradient(circle at 50% 20%, #f0fdfa 0%, #f8fafc 100%); min-height: 100vh; display: flex; flex-direction: column;">
+
+    <!-- Minimal Header -->
+    <header class="site-header" style="background: white;">
+        <div class="container navbar" style="padding: 12px 0;">
+            <a href="/" class="brand-logo">
+                <div class="brand-icon"><i class="fa-solid fa-leaf"></i></div>
+                <div class="brand-text">
+                    <h1>Saptashrungi</h1>
+                    <span>Disposables Management</span>
+                </div>
+            </a>
+            <a href="/" class="btn btn-outline btn-sm">
+                <i class="fa-solid fa-arrow-left"></i> Back to Store
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Auth Card Container -->
+    <main style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px 20px;">
+        <div style="background: white; border-radius: var(--radius-xl); border: 1px solid var(--border); box-shadow: var(--shadow-xl); max-width: 480px; width: 100%; overflow: hidden;">
+            
+            <!-- Quick Demo Credential Banner -->
+            <div style="background: linear-gradient(135deg, #0f172a, #134e4a); color: white; padding: 18px 24px;">
+                <div style="font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.08em; color: #5eead4; font-weight: 700; margin-bottom: 6px;">
+                    <i class="fa-solid fa-bolt"></i> Instant 1-Click Demo Login
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="button" onclick="fillAdminDemo()" class="btn btn-sm btn-accent" style="flex: 1;" id="admin-demo-btn">
+                        <i class="fa-solid fa-shield-halved"></i> Admin Demo
+                    </button>
+                    <button type="button" onclick="fillCustomerDemo()" class="btn btn-sm btn-outline" style="flex: 1; background: rgba(255,255,255,0.1); color: white; border-color: rgba(255,255,255,0.25);" id="customer-demo-btn">
+                        <i class="fa-solid fa-user"></i> Customer Demo
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tab Switcher -->
+            <div style="display: flex; border-bottom: 1px solid var(--border);">
+                <button id="tabLogin" onclick="switchTab('login')" style="flex: 1; padding: 14px; background: none; border: none; font-weight: 700; font-size: 0.95rem; color: var(--primary); border-bottom: 2px solid var(--primary); cursor: pointer;">
+                    Sign In
+                </button>
+                <button id="tabRegister" onclick="switchTab('register')" style="flex: 1; padding: 14px; background: none; border: none; font-weight: 600; font-size: 0.95rem; color: var(--text-muted); border-bottom: 2px solid transparent; cursor: pointer;">
+                    Create Account
+                </button>
+            </div>
+
+            <div style="padding: 28px;">
+                <!-- Login Form -->
+                <form id="loginForm" onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" id="login_email" class="form-control" required placeholder="admin@sdms.com or customer@sdms.com">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" id="login_password" class="form-control" required placeholder="••••••••">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 8px;" id="login-submit-btn">
+                        <i class="fa-solid fa-right-to-bracket"></i> Sign In to SDMS
+                    </button>
+                </form>
+
+                <!-- Registration Form -->
+                <form id="registerForm" onsubmit="handleRegister(event)" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label">Full Name / Catering Company *</label>
+                        <input type="text" id="reg_name" class="form-control" required placeholder="e.g. Ramesh Patel">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email Address *</label>
+                        <input type="email" id="reg_email" class="form-control" required placeholder="ramesh@gmail.com">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Password (min 6 characters) *</label>
+                        <input type="password" id="reg_password" class="form-control" required minlength="6" placeholder="••••••••">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Phone / WhatsApp Number</label>
+                        <input type="tel" id="reg_phone" class="form-control" placeholder="+91 98251xxxxx">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Delivery Address in Surat</label>
+                        <textarea id="reg_address" class="form-control" rows="2" placeholder="Street, Area, Surat"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 8px;" id="register-submit-btn">
+                        <i class="fa-solid fa-user-plus"></i> Create Customer Account
+                    </button>
+                </form>
+
+                <div style="margin-top: 20px; font-size: 0.8rem; color: var(--text-muted); text-align: center;">
+                    Admin: <code>admin@sdms.com / Admin@123</code><br>
+                    Customer: <code>customer@sdms.com / Customer@123</code>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer" style="padding: 20px 0;">
+        <div class="container footer-bottom">
+            <div>&copy; 2026 Saptashrungi Disposables. Secure JWT &amp; Bcrypt Authentication.</div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="/js/api.js"></script>
+    <script>
+        function switchTab(mode) {
+            const tabLogin = document.getElementById('tabLogin');
+            const tabRegister = document.getElementById('tabRegister');
+            const formLogin = document.getElementById('loginForm');
+            const formRegister = document.getElementById('registerForm');
+
+            if (mode === 'login') {
+                tabLogin.style.color = 'var(--primary)';
+                tabLogin.style.borderBottomColor = 'var(--primary)';
+                tabRegister.style.color = 'var(--text-muted)';
+                tabRegister.style.borderBottomColor = 'transparent';
+                formLogin.style.display = 'block';
+                formRegister.style.display = 'none';
+            } else {
+                tabRegister.style.color = 'var(--primary)';
+                tabRegister.style.borderBottomColor = 'var(--primary)';
+                tabLogin.style.color = 'var(--text-muted)';
+                tabLogin.style.borderBottomColor = 'transparent';
+                formRegister.style.display = 'block';
+                formLogin.style.display = 'none';
+            }
+        }
+
+        function fillAdminDemo() {
+            switchTab('login');
+            document.getElementById('login_email').value = 'admin@sdms.com';
+            document.getElementById('login_password').value = 'Admin@123';
+            showToast('Filled Admin Credentials. Click "Sign In"!', 'info');
+        }
+
+        function fillCustomerDemo() {
+            switchTab('login');
+            document.getElementById('login_email').value = 'customer@sdms.com';
+            document.getElementById('login_password').value = 'Customer@123';
+            showToast('Filled Customer Credentials. Click "Sign In"!', 'info');
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('login_email').value.trim();
+            const password = document.getElementById('login_password').value;
+            const btn = document.getElementById('login-submit-btn');
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Authenticating...';
+
+            try {
+                const res = await API.post('/auth/login', { email, password });
+                API.setAuth(res.token, res.user);
+                showToast(res.message, 'success');
+
+                const urlParams = new URLSearchParams(window.location.search);
+                const redirect = urlParams.get('redirect');
+
+                setTimeout(() => {
+                    if (res.user.role === 'admin') {
+                        window.location.href = redirect || '/admin/index.html';
+                    } else {
+                        window.location.href = redirect || '/products.html';
+                    }
+                }, 400);
+            } catch (err) {
+                showToast(err.message, 'danger');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Sign In to SDMS';
+            }
+        }
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById('reg_name').value.trim();
+            const email = document.getElementById('reg_email').value.trim();
+            const password = document.getElementById('reg_password').value;
+            const phone = document.getElementById('reg_phone').value.trim();
+            const address = document.getElementById('reg_address').value.trim();
+
+            const btn = document.getElementById('register-submit-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creating Account...';
+
+            try {
+                const res = await API.post('/auth/register', { name, email, password, phone, address });
+                API.setAuth(res.token, res.user);
+                showToast(res.message, 'success');
+
+                setTimeout(() => {
+                    window.location.href = '/products.html';
+                }, 500);
+            } catch (err) {
+                showToast(err.message, 'danger');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Create Customer Account';
+            }
+        }
+
+        // Check if tab=register in URL
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('tab') === 'register') {
+            switchTab('register');
+        }
+    </script>
+</body>
+</html>

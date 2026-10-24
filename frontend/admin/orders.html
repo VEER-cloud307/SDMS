@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Management | SDMS Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/css/admin.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="admin-body">
+
+    <!-- Sidebar Navigation -->
+    <aside class="admin-sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-brand-icon"><i class="fa-solid fa-leaf"></i></div>
+            <div class="sidebar-brand-text">
+                <h2>Saptashrungi</h2>
+                <span>Admin Console</span>
+            </div>
+        </div>
+
+        <ul class="sidebar-nav">
+            <li class="nav-section-title">Core Management</li>
+            <li><a href="/admin/index.html" class="sidebar-link" data-menu="dashboard"><i class="fa-solid fa-gauge"></i><span>Dashboard</span></a></li>
+            <li><a href="/admin/products.html" class="sidebar-link" data-menu="products"><i class="fa-solid fa-boxes-stacked"></i><span>Products</span></a></li>
+            <li><a href="/admin/stock.html" class="sidebar-link" data-menu="stock"><i class="fa-solid fa-warehouse"></i><span>Stock Management</span><span id="sidebar-low-stock-badge" class="sidebar-badge" style="display: none;">0</span></a></li>
+            <li><a href="/admin/orders.html" class="sidebar-link active" data-menu="orders"><i class="fa-solid fa-cart-flatbed"></i><span>Orders</span></a></li>
+
+            <li class="nav-section-title" style="margin-top: 14px;">Finance &amp; Operations</li>
+            <li><a href="/admin/suppliers.html" class="sidebar-link" data-menu="suppliers"><i class="fa-solid fa-truck-field"></i><span>Suppliers</span></a></li>
+            <li><a href="/admin/billing.html" class="sidebar-link" data-menu="billing"><i class="fa-solid fa-file-invoice-dollar"></i><span>Billing &amp; Invoices</span></a></li>
+            <li><a href="/admin/reports.html" class="sidebar-link" data-menu="reports"><i class="fa-solid fa-chart-pie"></i><span>Reports &amp; Analytics</span></a></li>
+            <li><a href="/admin/settings.html" class="sidebar-link" data-menu="settings"><i class="fa-solid fa-store"></i><span>Business Info</span></a></li>
+
+            <li class="nav-section-title" style="margin-top: 14px;">Storefront</li>
+            <li><a href="/" target="_blank" class="sidebar-link"><i class="fa-solid fa-arrow-up-right-from-square"></i><span>Customer Store</span></a></li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <div class="admin-user-info">
+                <div class="admin-avatar" id="admin-profile-avatar">A</div>
+                <div class="admin-details">
+                    <h4 id="admin-profile-name">Chetan Jadav</h4>
+                    <span>Administrator</span>
+                </div>
+            </div>
+            <button onclick="adminLogout()" class="logout-btn" title="Sign Out"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="admin-main">
+        <header class="admin-topbar">
+            <div class="topbar-title">
+                <h1>Order Processing &amp; Management</h1>
+            </div>
+            <div class="topbar-actions">
+                <span class="badge" style="background: #e0f2fe; color: #0284c7; padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 0.8rem;">
+                    <i class="fa-solid fa-bolt"></i> Rule: Confirming reduces stock, Cancelling restores it
+                </span>
+            </div>
+        </header>
+
+        <div class="admin-content">
+            <!-- Filter Toolbar -->
+            <div class="admin-card">
+                <div class="admin-card-body" style="padding: 16px 20px; display: flex; gap: 16px; flex-wrap: wrap; align-items: center; justify-content: space-between;">
+                    <div class="search-box" style="flex: 1; min-width: 260px;">
+                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                        <input type="text" id="adminOrderSearch" placeholder="Search Order #, customer name, or phone..." oninput="handleOrderSearch()">
+                    </div>
+
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap;" id="orderStatusTabs">
+                        <button onclick="filterByStatus('all')" class="btn btn-sm btn-primary" data-status="all">All</button>
+                        <button onclick="filterByStatus('Pending')" class="btn btn-sm btn-outline" data-status="Pending">Pending</button>
+                        <button onclick="filterByStatus('Confirmed')" class="btn btn-sm btn-outline" data-status="Confirmed">Confirmed</button>
+                        <button onclick="filterByStatus('Delivered')" class="btn btn-sm btn-outline" data-status="Delivered">Delivered</button>
+                        <button onclick="filterByStatus('Cancelled')" class="btn btn-sm btn-outline" data-status="Cancelled">Cancelled</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Orders Table -->
+            <div class="admin-card">
+                <div class="admin-card-header">
+                    <h2 id="ordersCountTitle">Orders List</h2>
+                </div>
+                <div class="table-responsive">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Order # &amp; Date</th>
+                                <th>Customer Details</th>
+                                <th>Items</th>
+                                <th>Total Amount</th>
+                                <th>Current Status</th>
+                                <th>Stock Rule</th>
+                                <th>Change Status</th>
+                                <th style="text-align: right;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-orders-tbody">
+                            <tr>
+                                <td colspan="8" style="text-align: center; padding: 30px;">
+                                    <i class="fa-solid fa-spinner fa-spin"></i> Loading orders database...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Order Items Modal -->
+    <div class="modal-overlay" id="adminOrderModal">
+        <div class="modal-card" style="max-width: 680px;">
+            <div class="modal-header">
+                <div>
+                    <h3 id="admModalOrderNum" style="font-size: 1.25rem;">Order Details</h3>
+                    <span id="admModalOrderDate" style="font-size: 0.8rem; color: var(--text-muted);">Date</span>
+                </div>
+                <button class="modal-close" onclick="closeAdminOrderModal()">&times;</button>
+            </div>
+            <div id="admModalOrderContent">
+                <!-- Dynamically loaded -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/js/api.js"></script>
+    <script src="/js/admin.js"></script>
+    <script>
+        let currentStatusFilter = 'all';
+        let adminOrders = [];
+
+        async function initOrdersPage() {
+            initAdminPage('orders');
+
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('search')) {
+                document.getElementById('adminOrderSearch').value = urlParams.get('search');
+            }
+
+            await loadAdminOrders();
+        }
+
+        async function loadAdminOrders() {
+            const search = document.getElementById('adminOrderSearch').value.trim();
+            const params = {};
+            if (currentStatusFilter !== 'all') params.status = currentStatusFilter;
+            if (search) params.search = search;
+
+            try {
+                const res = await API.get('/orders', params);
+                adminOrders = res.orders || [];
+                renderAdminOrdersTable(adminOrders);
+            } catch (err) {
+                console.error('Failed to load orders:', err);
+                showToast(err.message, 'danger');
+            }
+        }
+
+        function filterByStatus(status) {
+            currentStatusFilter = status;
+            const buttons = document.querySelectorAll('#orderStatusTabs button');
+            buttons.forEach(btn => {
+                if (btn.getAttribute('data-status') === status) {
+                    btn.className = 'btn btn-sm btn-primary';
+                } else {
+                    btn.className = 'btn btn-sm btn-outline';
+                }
+            });
+            loadAdminOrders();
+        }
+
+        let orderSearchTimer = null;
+        function handleOrderSearch() {
+            clearTimeout(orderSearchTimer);
+            orderSearchTimer = setTimeout(loadAdminOrders, 250);
+        }
+
+        function renderAdminOrdersTable(orders) {
+            const tbody = document.getElementById('admin-orders-tbody');
+            document.getElementById('ordersCountTitle').textContent = `Orders List (${orders.length})`;
+
+            if (orders.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 24px; color: var(--text-muted);">No orders match criteria.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = orders.map(o => {
+                const isDeducted = Number(o.stock_deducted) === 1;
+                return `
+                    <tr id="order-row-${o.id}">
+                        <td>
+                            <strong style="color: var(--admin-primary);">${o.order_number}</strong>
+                            <div style="font-size: 0.72rem; color: #94a3b8;">${new Date(o.created_at).toLocaleDateString()} ${new Date(o.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                        </td>
+                        <td>
+                            <div style="font-weight: 600;">${o.customer_name}</div>
+                            <div style="font-size: 0.75rem; color: #64748b;">${o.customer_phone}</div>
+                            <div style="font-size: 0.72rem; color: #94a3b8; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${o.shipping_address}</div>
+                        </td>
+                        <td><strong>${o.item_count || 1}</strong> items</td>
+                        <td><strong style="font-size: 1rem; color: var(--text-main);">${formatCurrency(o.total_amount)}</strong></td>
+                        <td>${getStatusBadge(o.status)}</td>
+                        <td>
+                            ${isDeducted ? `
+                                <span class="badge" style="background: #ecfdf5; color: #10b981; font-weight: 700; font-size: 0.72rem; padding: 3px 8px; border-radius: 4px;">
+                                    <i class="fa-solid fa-check"></i> Stock Deducted
+                                </span>
+                            ` : `
+                                <span class="badge" style="background: #f1f5f9; color: #64748b; font-weight: 600; font-size: 0.72rem; padding: 3px 8px; border-radius: 4px;">
+                                    Not Deducted
+                                </span>
+                            `}
+                        </td>
+                        <td>
+                            <select onchange="updateOrderStatusDirect(${o.id}, this.value)" class="form-control" style="padding: 4px 8px; font-size: 0.8rem; width: 140px;">
+                                <option value="Pending" ${o.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                                <option value="Confirmed" ${o.status === 'Confirmed' ? 'selected' : ''}>Confirmed</option>
+                                <option value="Preparing" ${o.status === 'Preparing' ? 'selected' : ''}>Preparing</option>
+                                <option value="Out for Delivery" ${o.status === 'Out for Delivery' ? 'selected' : ''}>Out for Delivery</option>
+                                <option value="Delivered" ${o.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+                                <option value="Cancelled" ${o.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+                            </select>
+                        </td>
+                        <td style="text-align: right;">
+                            <div style="display: flex; gap: 4px; justify-content: flex-end;">
+                                <button onclick="viewAdminOrderModal(${o.id})" class="btn btn-sm btn-outline" style="padding: 4px 8px;" title="View Details">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                                ${o.bill_id ? `
+                                    <a href="/admin/invoice.html?id=${o.bill_id}" target="_blank" class="btn btn-sm btn-primary" style="padding: 4px 8px;" title="Print Invoice">
+                                        <i class="fa-solid fa-print"></i>
+                                    </a>
+                                ` : `
+                                    <button onclick="generateOrderBill(${o.id})" class="btn btn-sm btn-outline" style="padding: 4px 8px; color: var(--primary); border-color: #99f6e4;" title="Generate Bill / Invoice">
+                                        <i class="fa-solid fa-receipt"></i>
+                                    </button>
+                                `}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function updateOrderStatusDirect(orderId, newStatus) {
+            try {
+                const res = await API.patch(`/orders/${orderId}/status`, { status: newStatus });
+                showToast(res.message, 'success');
+                loadAdminOrders();
+                updateLowStockSidebarBadge();
+            } catch (err) {
+                showToast(err.message, 'danger');
+                loadAdminOrders(); // reset select back to original
+            }
+        }
+
+        async function generateOrderBill(orderId) {
+            if (confirm('Generate official invoice/bill for this order? Total will be calculated on server.')) {
+                try {
+                    const res = await API.post('/bills', {
+                        order_id: orderId,
+                        payment_method: 'Cash',
+                        payment_status: 'Paid'
+                    });
+                    showToast(res.message, 'success');
+                    loadAdminOrders();
+                    window.open(`/admin/invoice.html?id=${res.bill.id}`, '_blank');
+                } catch (err) {
+                    showToast(err.message, 'danger');
+                }
+            }
+        }
+
+        async function viewAdminOrderModal(orderId) {
+            try {
+                const res = await API.get(`/orders/${orderId}`);
+                const ord = res.order;
+                if (!ord) return;
+
+                document.getElementById('admModalOrderNum').textContent = `Order Details: ${ord.order_number}`;
+                document.getElementById('admModalOrderDate').textContent = `Created: ${new Date(ord.created_at).toLocaleString()}`;
+
+                const itemsRows = (ord.items || []).map(it => `
+                    <tr>
+                        <td>
+                            <strong>${it.product_name}</strong>
+                            <div style="font-size: 0.72rem; color: #64748b;">${it.specifications || ''}</div>
+                        </td>
+                        <td>${formatCurrency(it.price)}</td>
+                        <td><strong>${it.quantity}</strong></td>
+                        <td><strong>${formatCurrency(it.subtotal)}</strong></td>
+                    </tr>
+                `).join('');
+
+                document.getElementById('admModalOrderContent').innerHTML = `
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; background: #f8fafc; padding: 16px; border-radius: 8px; margin-bottom: 20px;">
+                        <div>
+                            <strong>Customer Name:</strong> ${ord.customer_name}<br>
+                            <strong>Phone:</strong> ${ord.customer_phone}<br>
+                            <strong>Email:</strong> ${ord.customer_email}
+                        </div>
+                        <div>
+                            <strong>Shipping Address:</strong><br>
+                            ${ord.shipping_address}<br>
+                            ${ord.notes ? `<strong>Notes:</strong> ${ord.notes}` : ''}
+                        </div>
+                    </div>
+
+                    <table class="admin-table" style="margin-bottom: 20px;">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Price</th>
+                                <th>Qty</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>${itemsRows}</tbody>
+                    </table>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 14px;">
+                        <div>
+                            <span>Current Status:</span> ${getStatusBadge(ord.status)}
+                        </div>
+                        <div style="text-align: right;">
+                            <span style="font-size: 0.85rem; color: #64748b;">Order Total:</span>
+                            <div style="font-size: 1.4rem; font-weight: 800; color: var(--admin-primary);">${formatCurrency(ord.total_amount)}</div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px;">
+                        <button onclick="closeAdminOrderModal()" class="btn btn-outline btn-sm">Close</button>
+                        ${ord.bill_id ? `
+                            <a href="/admin/invoice.html?id=${ord.bill_id}" target="_blank" class="btn btn-primary btn-sm">
+                                <i class="fa-solid fa-print"></i> View Invoice #${ord.bill_number}
+                            </a>
+                        ` : `
+                            <button onclick="generateOrderBill(${ord.id})" class="btn btn-primary btn-sm">
+                                <i class="fa-solid fa-receipt"></i> Generate Bill Now
+                            </button>
+                        `}
+                    </div>
+                `;
+
+                document.getElementById('adminOrderModal').classList.add('active');
+            } catch (err) {
+                showToast(err.message, 'danger');
+            }
+        }
+
+        function closeAdminOrderModal() {
+            document.getElementById('adminOrderModal').classList.remove('active');
+        }
+
+        document.addEventListener('DOMContentLoaded', initOrdersPage);
+    </script>
+</body>
+</html>

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Settings | SDMS Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/css/admin.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="admin-body">
+
+    <!-- Sidebar Navigation -->
+    <aside class="admin-sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-brand-icon"><i class="fa-solid fa-leaf"></i></div>
+            <div class="sidebar-brand-text">
+                <h2>Saptashrungi</h2>
+                <span>Admin Console</span>
+            </div>
+        </div>
+
+        <ul class="sidebar-nav">
+            <li class="nav-section-title">Core Management</li>
+            <li><a href="/admin/index.html" class="sidebar-link" data-menu="dashboard"><i class="fa-solid fa-gauge"></i><span>Dashboard</span></a></li>
+            <li><a href="/admin/products.html" class="sidebar-link" data-menu="products"><i class="fa-solid fa-boxes-stacked"></i><span>Products</span></a></li>
+            <li><a href="/admin/stock.html" class="sidebar-link" data-menu="stock"><i class="fa-solid fa-warehouse"></i><span>Stock Management</span><span id="sidebar-low-stock-badge" class="sidebar-badge" style="display: none;">0</span></a></li>
+            <li><a href="/admin/orders.html" class="sidebar-link" data-menu="orders"><i class="fa-solid fa-cart-flatbed"></i><span>Orders</span></a></li>
+
+            <li class="nav-section-title" style="margin-top: 14px;">Finance &amp; Operations</li>
+            <li><a href="/admin/suppliers.html" class="sidebar-link" data-menu="suppliers"><i class="fa-solid fa-truck-field"></i><span>Suppliers</span></a></li>
+            <li><a href="/admin/billing.html" class="sidebar-link" data-menu="billing"><i class="fa-solid fa-file-invoice-dollar"></i><span>Billing &amp; Invoices</span></a></li>
+            <li><a href="/admin/reports.html" class="sidebar-link" data-menu="reports"><i class="fa-solid fa-chart-pie"></i><span>Reports &amp; Analytics</span></a></li>
+            <li><a href="/admin/settings.html" class="sidebar-link active" data-menu="settings"><i class="fa-solid fa-store"></i><span>Business Info</span></a></li>
+
+            <li class="nav-section-title" style="margin-top: 14px;">Storefront</li>
+            <li><a href="/" target="_blank" class="sidebar-link"><i class="fa-solid fa-arrow-up-right-from-square"></i><span>Customer Store</span></a></li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <div class="admin-user-info">
+                <div class="admin-avatar" id="admin-profile-avatar">A</div>
+                <div class="admin-details">
+                    <h4 id="admin-profile-name">Chetan Jadav</h4>
+                    <span>Administrator</span>
+                </div>
+            </div>
+            <button onclick="adminLogout()" class="logout-btn" title="Sign Out"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="admin-main">
+        <header class="admin-topbar">
+            <div class="topbar-title">
+                <h1>Business Profile &amp; Shop Settings</h1>
+            </div>
+        </header>
+
+        <div class="admin-content">
+            <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 24px; align-items: start;">
+                <!-- Form Card -->
+                <div class="admin-card">
+                    <div class="admin-card-header">
+                        <h2>Edit Business Details</h2>
+                    </div>
+                    <div class="admin-card-body">
+                        <form id="businessForm" onsubmit="saveBusinessInfo(event)">
+                            <div class="form-group">
+                                <label class="form-label">Shop / Enterprise Name *</label>
+                                <input type="text" id="biz_shop_name" class="form-control" required>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                                <div class="form-group">
+                                    <label class="form-label">Proprietor / Owner Name *</label>
+                                    <input type="text" id="biz_owner_name" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Contact Phone *</label>
+                                    <input type="tel" id="biz_phone" class="form-control" required>
+                                </div>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                                <div class="form-group">
+                                    <label class="form-label">WhatsApp Business Number *</label>
+                                    <input type="tel" id="biz_whatsapp" class="form-control" required placeholder="+919082545483">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Email Address *</label>
+                                    <input type="email" id="biz_email" class="form-control" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Shop &amp; Warehouse Address *</label>
+                                <textarea id="biz_address" class="form-control" rows="3" required></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Wholesale Tagline</label>
+                                <input type="text" id="biz_tagline" class="form-control">
+                            </div>
+
+                            <div style="margin-top: 24px;">
+                                <button type="submit" class="btn btn-primary" id="save-biz-btn">
+                                    <i class="fa-solid fa-floppy-disk"></i> Save Changes
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Live Preview Card -->
+                <div class="admin-card">
+                    <div class="admin-card-header">
+                        <h2>Storefront &amp; Invoice Preview</h2>
+                    </div>
+                    <div class="admin-card-body" style="background: #f8fafc; border-radius: 8px; font-size: 0.9rem; line-height: 1.6;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                            <div style="width: 36px; height: 36px; background: var(--admin-primary); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white;">
+                                <i class="fa-solid fa-leaf"></i>
+                            </div>
+                            <div>
+                                <h3 id="prev-shop" style="font-size: 1.15rem; color: var(--admin-primary); margin: 0;">Saptashrungi Disposables</h3>
+                                <div id="prev-tagline" style="font-size: 0.75rem; color: #64748b;">Eco-Friendly Disposables</div>
+                            </div>
+                        </div>
+
+                        <div style="border-top: 1px solid var(--admin-border); padding-top: 12px; margin-top: 12px;">
+                            <div style="margin-bottom: 6px;">
+                                <strong>Proprietor:</strong> <span id="prev-owner">Mr. Chetan Jadav</span>
+                            </div>
+                            <div style="margin-bottom: 6px;">
+                                <strong>Address:</strong><br>
+                                <span id="prev-address" style="color: #475569;">Surat, Gujarat</span>
+                            </div>
+                            <div style="margin-bottom: 6px;">
+                                <strong>Phone:</strong> <span id="prev-phone">+91 9082545483</span>
+                            </div>
+                            <div style="margin-bottom: 6px;">
+                                <strong>WhatsApp:</strong> <span id="prev-wa">+919082545483</span>
+                            </div>
+                            <div>
+                                <strong>Email:</strong> <span id="prev-email">saptashrungidisposables@gmail.com</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="/js/api.js"></script>
+    <script src="/js/admin.js"></script>
+    <script>
+        async function loadBusinessInfo() {
+            initAdminPage('settings');
+
+            try {
+                const res = await API.get('/business');
+                const b = res.business || {};
+
+                document.getElementById('biz_shop_name').value = b.shop_name || 'Saptashrungi Disposables';
+                document.getElementById('biz_owner_name').value = b.owner_name || 'Mr. Chetan Jadav';
+                document.getElementById('biz_phone').value = b.phone || '+91 9082545483';
+                document.getElementById('biz_whatsapp').value = b.whatsapp_number || '+919082545483';
+                document.getElementById('biz_email').value = b.email || 'saptashrungidisposables@gmail.com';
+                document.getElementById('biz_address').value = b.address || '';
+                document.getElementById('biz_tagline').value = b.tagline || '';
+
+                updatePreview(b);
+            } catch (err) {
+                showToast(err.message, 'danger');
+            }
+        }
+
+        function updatePreview(b) {
+            document.getElementById('prev-shop').textContent = b.shop_name || 'Saptashrungi Disposables';
+            document.getElementById('prev-owner').textContent = b.owner_name || 'Mr. Chetan Jadav';
+            document.getElementById('prev-phone').textContent = b.phone || '+91 9082545483';
+            document.getElementById('prev-wa').textContent = b.whatsapp_number || '+919082545483';
+            document.getElementById('prev-email').textContent = b.email || '';
+            document.getElementById('prev-address').textContent = b.address || '';
+            document.getElementById('prev-tagline').textContent = b.tagline || '';
+        }
+
+        async function saveBusinessInfo(e) {
+            e.preventDefault();
+            const payload = {
+                shop_name: document.getElementById('biz_shop_name').value.trim(),
+                owner_name: document.getElementById('biz_owner_name').value.trim(),
+                phone: document.getElementById('biz_phone').value.trim(),
+                whatsapp_number: document.getElementById('biz_whatsapp').value.trim(),
+                email: document.getElementById('biz_email').value.trim(),
+                address: document.getElementById('biz_address').value.trim(),
+                tagline: document.getElementById('biz_tagline').value.trim()
+            };
+
+            const btn = document.getElementById('save-biz-btn');
+            btn.disabled = true;
+
+            try {
+                const res = await API.put('/business', payload);
+                showToast(res.message, 'success');
+                updatePreview(res.business);
+            } catch (err) {
+                showToast(err.message, 'danger');
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadBusinessInfo);
+    </script>
+</body>
+</html>

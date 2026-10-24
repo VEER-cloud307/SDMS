@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="100%" height="100%">
+  <defs>
+    <linearGradient id="grad-coffee-cups" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D2691E" stop-opacity="0.15" />
+      <stop offset="100%" stop-color="#D2691E" stop-opacity="0.32" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#000000" flood-opacity="0.12" />
+    </filter>
+  </defs>
+  <rect width="400" height="300" fill="url(#grad-coffee-cups)" rx="16" />
+  <circle cx="200" cy="120" r="70" fill="#ffffff" filter="url(#shadow)" />
+  <circle cx="200" cy="120" r="60" fill="#D2691E" opacity="0.12" />
+  <text x="200" y="132" font-size="52" text-anchor="middle" dominant-baseline="central">🥤</text>
+  <rect x="100" y="210" width="200" height="28" rx="14" fill="#ffffff" opacity="0.95" filter="url(#shadow)" />
+  <text x="200" y="228" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="12" font-weight="700" letter-spacing="1" fill="#D2691E" text-anchor="middle">PAPER CUPS</text>
+  <text x="200" y="265" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif" font-size="15" font-weight="600" fill="#1e293b" text-anchor="middle">Hot Coffee Cups</text>
+</svg>

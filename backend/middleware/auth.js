@@ -1,7 +1,8 @@
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
-const JWT_SECRET = process.env.JWT_SECRET || 'sdms_secret_jwt_key_saptashrungi_2026_surat';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) throw new Error('JWT_SECRET is missing in .env');
 
 function authenticateToken(req, res, next) {
     const authHeader = req.headers['authorization'];

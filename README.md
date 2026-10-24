@@ -43,7 +43,7 @@ A full-featured management and ordering platform for disposable products and foo
 Follow these steps to set up and run the application locally:
 
 ### 1. Prerequisites
-- [Node.js](https://nodejs.org/) (v16 or higher recommended)
+- [Node.js](https://nodejs.org/) (v20 or higher recommended)
 - [npm](https://www.npmjs.com/)
 
 ### 2. Installation
@@ -64,11 +64,27 @@ Copy-Item .env.example .env
 cp .env.example .env
 ```
 
+Replace `JWT_SECRET` with a long, secure random value. You can generate a 64-character hex string with:
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+
 Verify or adjust the `.env` settings as needed:
 ```env
 PORT=3000
-JWT_SECRET=your_jwt_secret_key
+JWT_SECRET=your_generated_random_secret
 DB_TYPE=sqlite
+```
+
+#### Optional: MySQL Database Configuration
+If using MySQL or MariaDB instead of SQLite, set `DB_TYPE=mysql` and provide connection settings matching your local/server MySQL instance:
+```env
+DB_TYPE=mysql
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=root
+DB_PASSWORD=your_mysql_password
+DB_NAME=sdms_db
 ```
 
 ### 4. Initialize Database & Seed Sample Data
@@ -133,6 +149,14 @@ sdms/
 ├── package.json         # Project metadata and dependencies
 └── README.md            # Project documentation
 ```
+
+---
+
+## 📸 Screenshots
+
+![Home](docs/screenshots/home.png)
+
+![Admin Dashboard](docs/screenshots/admin.png)
 
 ---
 

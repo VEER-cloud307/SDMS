@@ -7,6 +7,9 @@
     "start": "node backend/server.js",
     "seed": "node database/init-db.js"
   },
+  "engines": {
+    "node": ">=20"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",

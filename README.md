@@ -1,5 +1,7 @@
 # Saptashrungi Disposables Management System (SDMS)
 
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/VEER-cloud307/SDMS)
+
 A full-featured management and ordering platform for disposable products and food packaging wholesale businesses, built for **Saptashrungi Disposables** (Surat, Gujarat).
 
 ---

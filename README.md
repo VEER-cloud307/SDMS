@@ -2,6 +2,10 @@
 
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/VEER-cloud307/SDMS)
 
+   **Live demo:** https://sdms-sau0.onrender.com
+   
+   Free hosting: the first load can take about 50 seconds, and data resets on restart. The demo logins are in the section below.
+
 A full-featured management and ordering platform for disposable products and food packaging wholesale businesses, built for **Saptashrungi Disposables** (Surat, Gujarat).
 
 ---
